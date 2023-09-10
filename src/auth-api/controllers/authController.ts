@@ -2,17 +2,15 @@ import { Response, Request } from "express";
 
 import { pool } from "../config";
 
-// import { Pool } from "pg";
-
 import { v4 } from "uuid";
 
 const bcrypt = require("bcrypt");
 
-const registerController = async (res: Response, req: Request) => {
+export const registerController = async (req: Request, res: Response) => {
   try {
-    // request from the body
+    // request from the body/ destructure
 
-    const { username, email, age, gender, userdetails } = req.body();
+    const { username, email, age, gender, password, userdetails } = req.body;
 
     // generating random ids
 
@@ -21,7 +19,7 @@ const registerController = async (res: Response, req: Request) => {
     // generating a salt
 
     const salt = await bcrypt.genSalt(10);
-    const password = await bcrypt.hash(req.body.password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // check if the email or username already exists
     // connect to the db
@@ -39,8 +37,8 @@ const registerController = async (res: Response, req: Request) => {
     // insert into the database
 
     const signup = await pool.query(
-      `insert into users (userid, username, email, age, gender, userdetails)`,
-      [userid, username, email, age, gender, password, userdetails]
+      `insert into users (userid, username, email, age, gender, password, userdetails)`,
+      [userid, username, email, age, gender, hashedPassword, userdetails]
     );
 
     return res
@@ -50,5 +48,3 @@ const registerController = async (res: Response, req: Request) => {
     return res.status(400).json({ message: "Registration failed" });
   }
 };
-
-export default registerController;

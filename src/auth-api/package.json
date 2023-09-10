@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "tsc": "ts-node",
-    "watch": "nodemon src/server.ts"
+    "watch": "nodemon server.ts"
   },
   "keywords": [],
   "author": "",
