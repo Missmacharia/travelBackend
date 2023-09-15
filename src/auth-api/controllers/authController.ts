@@ -6,11 +6,11 @@ import { v4 } from "uuid";
 
 const bcrypt = require("bcrypt");
 
-export const registerController = async (req: Request, res: Response) => {
+const registerController = async (req: Request, res: Response) => {
   try {
-    // request from the body/ destructure
+    // descruturing from the body
 
-    const { username, email, age, gender, password, userdetails } = req.body;
+    const { username, email, age, gender, userdetails } = req.body;
 
     // generating random ids
 
@@ -19,13 +19,13 @@ export const registerController = async (req: Request, res: Response) => {
     // generating a salt
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    // check if the email or username already exists
+    // check if the email or userid already exists
     // connect to the db
     const existUser = await pool.query(
-      `select * from user where userid  = userid or email = email`,
-      [username, email]
+      `select * from users where userid = userid or email = email`,
+      [userid, email]
     );
 
     if (existUser.rows.length > 0) {
@@ -37,14 +37,18 @@ export const registerController = async (req: Request, res: Response) => {
     // insert into the database
 
     const signup = await pool.query(
-      `insert into users (userid, username, email, age, gender, password, userdetails)`,
-      [userid, username, email, age, gender, hashedPassword, userdetails]
+      `insert into users (userid, username, email, gender, age, password, userdetails)`,
+      [userid, username, email, gender, age, hashedPassword, userdetails]
     );
 
-    return res
-      .status(200)
-      .json({ message: "Registeration successful", signup });
+    console.log(signup);
+
+    return res.status(200).json({ message: "Registeration successful" });
   } catch (error) {
     return res.status(400).json({ message: "Registration failed" });
   }
+};
+
+module.exports = {
+  registerController,
 };
